@@ -1,10 +1,10 @@
-Template.configureLoginServiceDialogForFacebook.helpers({
+Template.configureLoginServiceDialogForCoinbase.helpers({
   siteUrl: function () {
     return Meteor.absoluteUrl();
   }
 });
 
-Template.configureLoginServiceDialogForFacebook.fields = function () {
+Template.configureLoginServiceDialogForCoinbase.fields = function () {
   return [
     {property: 'appId', label: 'App ID'},
     {property: 'secret', label: 'App Secret'}

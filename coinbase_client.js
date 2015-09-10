@@ -1,4 +1,4 @@
-Facebook = {};
+Coinbase = {};
 
 // Request Facebook credentials for the user
 //
@@ -6,14 +6,14 @@ Facebook = {};
 // @param credentialRequestCompleteCallback {Function} Callback function to call on
 //   completion. Takes one argument, credentialToken on success, or Error on
 //   error.
-Facebook.requestCredential = function (options, credentialRequestCompleteCallback) {
+Coinbase.requestCredential = function (options, credentialRequestCompleteCallback) {
   // support both (options, callback) and (callback).
   if (!credentialRequestCompleteCallback && typeof options === 'function') {
     credentialRequestCompleteCallback = options;
     options = {};
   }
 
-  var config = ServiceConfiguration.configurations.findOne({service: 'facebook'});
+  var config = ServiceConfiguration.configurations.findOne({service: 'coinbase'});
   if (!config) {
     credentialRequestCompleteCallback && credentialRequestCompleteCallback(
       new ServiceConfiguration.ConfigError());
@@ -21,23 +21,22 @@ Facebook.requestCredential = function (options, credentialRequestCompleteCallbac
   }
 
   var credentialToken = Random.secret();
-  var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent);
-  var display = mobile ? 'touch' : 'popup';
 
-  var scope = "email";
+  var scope = undefined;
   if (options && options.requestPermissions)
     scope = options.requestPermissions.join(',');
 
-  var loginStyle = OAuth._loginStyle('facebook', config, options);
-
-  var loginUrl =
-        'https://www.facebook.com/v2.2/dialog/oauth?client_id=' + config.appId +
-        '&redirect_uri=' + OAuth._redirectUri('facebook', config) +
-        '&display=' + display + '&scope=' + scope +
+  var loginStyle = OAuth._loginStyle('coinbase', config, options);
+  
+  var loginUrl = 'https://www.coinbase.com/oauth/authorize?response_type=code' +
+        '&client_id=' + config.client_id +
+        '&redirect_uri=' + OAuth._redirectUri('coinbase', config) +
         '&state=' + OAuth._stateParam(loginStyle, credentialToken);
+  if (scope)
+    loginUrl = loginUrl + '&scope=' + scope;
 
   OAuth.launchLogin({
-    loginService: "facebook",
+    loginService: "coinbase",
     loginStyle: loginStyle,
     loginUrl: loginUrl,
     credentialRequestCompleteCallback: credentialRequestCompleteCallback,
