@@ -1,28 +1,20 @@
-Facebook = {};
+Coinbase = {};
 
 var querystring = Npm.require('querystring');
 
-
-OAuth.registerService('facebook', 2, null, function(query) {
+OAuth.registerService('coinbase', 2, null, function(query) {
 
   var response = getTokenResponse(query);
   var accessToken = response.accessToken;
-
-  // include all fields from facebook
-  // http://developers.facebook.com/docs/reference/login/public-profile-and-friend-list/
-  var whitelisted = ['id', 'email', 'name', 'first_name',
-      'last_name', 'link', 'gender', 'locale', 'age_range'];
-
-  var identity = getIdentity(accessToken, whitelisted);
+  var refreshToken = response.refreshToken;
+  var identity = getIdentity(accessToken);
 
   var serviceData = {
     accessToken: accessToken,
+    refreshToken: refreshToken,
     expiresAt: (+new Date) + (1000 * response.expiresIn)
   };
 
-
-  var fields = _.pick(identity, whitelisted);
-  _.extend(serviceData, fields);
 
   return {
     serviceData: serviceData,
@@ -30,21 +22,10 @@ OAuth.registerService('facebook', 2, null, function(query) {
   };
 });
 
-// checks whether a string parses as JSON
-var isJSON = function (str) {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
 
-// returns an object containing:
-// - accessToken
-// - expiresIn: lifetime of token in seconds
+
 var getTokenResponse = function (query) {
-  var config = ServiceConfiguration.configurations.findOne({service: 'facebook'});
+  var config = ServiceConfiguration.configurations.findOne({service: 'coinbase'});
   if (!config)
     throw new ServiceConfiguration.ConfigError();
 
@@ -52,55 +33,46 @@ var getTokenResponse = function (query) {
   try {
     // Request an access token
     responseContent = HTTP.get(
-      "https://graph.facebook.com/v2.2/oauth/access_token", {
+      "http://www.coinbase.com/oauth/token", {
         params: {
-          client_id: config.appId,
-          redirect_uri: OAuth._redirectUri('facebook', config),
-          client_secret: OAuth.openSecret(config.secret),
-          code: query.code
+          client_id: config.client_id,
+          redirect_uri: OAuth._redirectUri('coinbase', config),
+          client_secret: OAuth.openSecret(config.client_secret),
+          code: query.code,
+          grant_type: 'authorization_code'
         }
       }).content;
   } catch (err) {
-    throw _.extend(new Error("Failed to complete OAuth handshake with Facebook. " + err.message),
+    throw _.extend(new Error("Failed to complete OAuth handshake with Coinbase. " + err.message),
                    {response: err.response});
   }
 
-  // If 'responseContent' parses as JSON, it is an error.
-  // XXX which facebook error causes this behvaior?
-  if (isJSON(responseContent)) {
-    throw new Error("Failed to complete OAuth handshake with Facebook. " + responseContent);
-  }
 
-  // Success!  Extract the facebook access token and expiration
-  // time from the response
   var parsedResponse = querystring.parse(responseContent);
-  var fbAccessToken = parsedResponse.access_token;
-  var fbExpires = parsedResponse.expires;
+  var coinbaseAccessToken = parsedResponse.access_token;
+  var coinbaseRefreshToken = parsedResponse.refresh_token;
+  var coinbaseExpires = parsedResponse.expires;
 
-  if (!fbAccessToken) {
-    throw new Error("Failed to complete OAuth handshake with facebook " +
-                    "-- can't find access token in HTTP response. " + responseContent);
-  }
   return {
-    accessToken: fbAccessToken,
-    expiresIn: fbExpires
+    accessToken: coinbaseAccessToken,
+    refreshToken: coinbaseRefreshToken,
+    expiresIn: coinbaseExpires
   };
 };
 
-var getIdentity = function (accessToken, fields) {
+var getIdentity = function (accessToken) {
   try {
-    return HTTP.get("https://graph.facebook.com/v2.4/me", {
+    return HTTP.get("https://api.coinbase.com/v2/user", {
       params: {
-        access_token: accessToken,
-        fields: fields
+        access_token: accessToken
       }
     }).data;
   } catch (err) {
-    throw _.extend(new Error("Failed to fetch identity from Facebook. " + err.message),
+    throw _.extend(new Error("Failed to fetch identity from Coinbase. " + err.message),
                    {response: err.response});
   }
 };
 
-Facebook.retrieveCredential = function(credentialToken, credentialSecret) {
+Coinbase.retrieveCredential = function(credentialToken, credentialSecret) {
   return OAuth.retrieveCredential(credentialToken, credentialSecret);
 };
