@@ -22,7 +22,7 @@ Coinbase.requestCredential = function(options, credentialRequestCompleteCallback
   var loginStyle = OAuth._loginStyle('coinbase', config, options);
 
   var loginUrl = 'https://www.coinbase.com/oauth/authorize?response_type=code' +
-        '&client_id=' + config.client_id +
+        '&client_id=' + config.clientId +
         '&redirect_uri=' + OAuth._redirectUri('coinbase', config) +
         '&state=' + OAuth._stateParam(loginStyle, credentialToken);
   if (scope)

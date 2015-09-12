@@ -6,7 +6,7 @@ if (Meteor.isClient) {
       callback = options;
       options = null;
     }
-
+    console.log('1')
     var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
     Coinbase.requestCredential(options, credentialRequestCompleteCallback);
   };
