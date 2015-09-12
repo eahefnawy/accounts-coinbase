@@ -1,6 +1,8 @@
-Coinbase = {};
-
 var querystring = Npm.require('querystring');
+Coinbase = {}; // global Meteor object
+
+// https://developers.coinbase.com/api/v2#users
+Coinbase.whitelistedFields = ['id', 'name', 'username', 'avatar_url'];
 
 OAuth.registerService('coinbase', 2, null, function(query) {
 
@@ -12,19 +14,19 @@ OAuth.registerService('coinbase', 2, null, function(query) {
   var serviceData = {
     accessToken: accessToken,
     refreshToken: refreshToken,
-    expiresAt: (+new Date) + (1000 * response.expiresIn)
+    expiresAt: (+new Date) + (1000 * response.expiresIn),
   };
 
+  var fields = _.pick(identity, Coinbase.whitelistedFields);
+  _.extend(serviceData, fields);
 
   return {
     serviceData: serviceData,
-    options: {profile: {name: identity.name}}
+    options: {profile: {name: identity.name}},
   };
 });
 
-
-
-var getTokenResponse = function (query) {
+var getTokenResponse = function(query) {
   var config = ServiceConfiguration.configurations.findOne({service: 'coinbase'});
   if (!config)
     throw new ServiceConfiguration.ConfigError();
@@ -33,20 +35,19 @@ var getTokenResponse = function (query) {
   try {
     // Request an access token
     responseContent = HTTP.get(
-      "http://www.coinbase.com/oauth/token", {
+      'http://www.coinbase.com/oauth/token', {
         params: {
           client_id: config.client_id,
           redirect_uri: OAuth._redirectUri('coinbase', config),
           client_secret: OAuth.openSecret(config.client_secret),
           code: query.code,
           grant_type: 'authorization_code'
-        }
+        },
       }).content;
   } catch (err) {
-    throw _.extend(new Error("Failed to complete OAuth handshake with Coinbase. " + err.message),
+    throw _.extend(new Error('Failed to complete OAuth handshake with Coinbase. ' + err.message),
                    {response: err.response});
   }
-
 
   var parsedResponse = querystring.parse(responseContent);
   var coinbaseAccessToken = parsedResponse.access_token;
@@ -56,19 +57,19 @@ var getTokenResponse = function (query) {
   return {
     accessToken: coinbaseAccessToken,
     refreshToken: coinbaseRefreshToken,
-    expiresIn: coinbaseExpires
+    expiresIn: coinbaseExpires,
   };
 };
 
-var getIdentity = function (accessToken) {
+var getIdentity = function(accessToken) {
   try {
-    return HTTP.get("https://api.coinbase.com/v2/user", {
+    return HTTP.get('https://api.coinbase.com/v2/user', {
       params: {
         access_token: accessToken
-      }
+      },
     }).data;
   } catch (err) {
-    throw _.extend(new Error("Failed to fetch identity from Coinbase. " + err.message),
+    throw _.extend(new Error('Failed to fetch identity from Coinbase. ' + err.message),
                    {response: err.response});
   }
 };

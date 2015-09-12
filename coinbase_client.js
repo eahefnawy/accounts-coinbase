@@ -1,13 +1,6 @@
-Coinbase = {};
+Coinbase = {}; // global Meteor object
 
-// Request Facebook credentials for the user
-//
-// @param options {optional}
-// @param credentialRequestCompleteCallback {Function} Callback function to call on
-//   completion. Takes one argument, credentialToken on success, or Error on
-//   error.
-Coinbase.requestCredential = function (options, credentialRequestCompleteCallback) {
-  // support both (options, callback) and (callback).
+Coinbase.requestCredential = function(options, credentialRequestCompleteCallback) {
   if (!credentialRequestCompleteCallback && typeof options === 'function') {
     credentialRequestCompleteCallback = options;
     options = {};
@@ -27,7 +20,7 @@ Coinbase.requestCredential = function (options, credentialRequestCompleteCallbac
     scope = options.requestPermissions.join(',');
 
   var loginStyle = OAuth._loginStyle('coinbase', config, options);
-  
+
   var loginUrl = 'https://www.coinbase.com/oauth/authorize?response_type=code' +
         '&client_id=' + config.client_id +
         '&redirect_uri=' + OAuth._redirectUri('coinbase', config) +
@@ -36,10 +29,10 @@ Coinbase.requestCredential = function (options, credentialRequestCompleteCallbac
     loginUrl = loginUrl + '&scope=' + scope;
 
   OAuth.launchLogin({
-    loginService: "coinbase",
+    loginService: 'coinbase',
     loginStyle: loginStyle,
     loginUrl: loginUrl,
     credentialRequestCompleteCallback: credentialRequestCompleteCallback,
-    credentialToken: credentialToken
+    credentialToken: credentialToken,
   });
 };
