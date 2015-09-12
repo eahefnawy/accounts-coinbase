@@ -11,13 +11,13 @@ meteor add eahefnawy:accounts-coinbase
 ### 1. [Create Coinbase OAuth2 Application](https://www.coinbase.com/oauth/applications/new).
 For the "Permitted Redirect URIs" text field, add the following URIs:
 
-  ```
-  http://localhost:3000/_oauth/coinbase
-  http://localhost:3000/_oauth/coinbase?close
-  ANY_DOMAIN.com/_oauth/coinbase
-  ANY_DOMAIN.com/_oauth/coinbase?close
-  you get the idea ;)
- ```
+```
+http://localhost:3000/_oauth/coinbase
+http://localhost:3000/_oauth/coinbase?close
+ANY_DOMAIN.com/_oauth/coinbase
+ANY_DOMAIN.com/_oauth/coinbase?close
+you get the idea ;)
+```
  
 After you click "create", you should get a client key and secret. Moving on...
 
