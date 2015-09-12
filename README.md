@@ -1,7 +1,6 @@
 accounts-coinbase
 =================
-:moneybag: A Meteor `loginWithCoinbase` Functionality.
-Updated & fully working at September 2015, since all the other `accounts-coinbase` are outdated. Add the package with:-
+:moneybag: `loginWithCoinbase` Meteor Package. Updated & fully working at September 2015, since all the other `accounts-coinbase` are outdated. Add the package with:-
 
 ```
 meteor add eahefnawy:accounts-coinbase
