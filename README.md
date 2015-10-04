@@ -44,4 +44,4 @@ Meteor.loginWithCoinbase(function(err) {
   console.log('yaay!')
 });
 ```
-You now have a user object logged in with Coinbase! You can log him out as usual if you want to with `Meteor.logout()`.
+You now have a user object logged in with Coinbase! You can log him out as usual if you want to with `Meteor.logout()`. 
